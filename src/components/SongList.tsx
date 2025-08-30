@@ -28,6 +28,7 @@ import {
   TableRow,
 } from './ui/table';
 import { ScrollArea } from './ui/scroll-area';
+import SongImage from './SongImage';
 
 type SortKey = keyof Song | 'duration';
 type SortDirection = 'asc' | 'desc';
@@ -145,13 +146,11 @@ export default function SongList() {
                   </Button>
                 </TableCell>
                 <TableCell className="flex items-center gap-4">
-                  <Image
-                    src={song.imageSrc}
-                    alt={song.title}
+                   <SongImage 
+                    song={song} 
                     width={40}
                     height={40}
                     className="aspect-square rounded-md object-cover"
-                    data-ai-hint="album cover"
                   />
                   <span className="font-medium">{song.title}</span>
                 </TableCell>

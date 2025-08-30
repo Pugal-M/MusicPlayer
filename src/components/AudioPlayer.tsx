@@ -14,6 +14,7 @@ import Image from 'next/image';
 import { Button } from './ui/button';
 import { Slider } from './ui/slider';
 import { formatDuration } from '@/lib/utils';
+import SongImage from './SongImage';
 
 export default function AudioPlayer() {
   const {
@@ -55,13 +56,11 @@ export default function AudioPlayer() {
       <div className="container mx-auto grid h-24 grid-cols-3 items-center p-4">
         {/* Now Playing */}
         <div className="flex items-center gap-4">
-          <Image
-            src={currentSong.imageSrc}
-            alt={currentSong.title}
+          <SongImage 
+            song={currentSong} 
             width={64}
             height={64}
             className="aspect-square rounded-md object-cover"
-            data-ai-hint="album cover"
           />
           <div>
             <p className="font-semibold">{currentSong.title}</p>
