@@ -242,7 +242,7 @@ function AddToPlaylistDropdown({ song, playlists, onAdd, showTrigger = false }: 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100">
+        <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 md:opacity-100">
           <MoreHorizontal className="h-5 w-5" />
         </Button>
       </DropdownMenuTrigger>
