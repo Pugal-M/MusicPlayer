@@ -102,7 +102,7 @@ export default function SongList() {
     if (currentSong?.id === songId) {
       togglePlayPause();
     } else {
-      playSong(songId);
+      playSong(songId, activePlaylistId);
     }
   }
 
@@ -135,7 +135,7 @@ export default function SongList() {
           </TableHeader>
           <TableBody>
             {displayedSongs.map(song => (
-              <TableRow key={song.id} className="group cursor-pointer" onDoubleClick={() => playSong(song.id)}>
+              <TableRow key={song.id} className="group cursor-pointer" onDoubleClick={() => playSong(song.id, activePlaylistId)}>
                 <TableCell>
                   <Button variant="ghost" size="icon" onClick={() => handlePlayClick(song.id)}>
                     {currentSong?.id === song.id && isPlaying ? (

@@ -21,7 +21,7 @@ type PlayerContextType = {
   progress: number;
   duration: number;
   favoriteSongIds: string[];
-  playSong: (songId: string) => void;
+  playSong: (songId: string, playlistId?: string | null) => void;
   togglePlayPause: () => void;
   playNext: () => void;
   playPrev: () => void;
@@ -40,23 +40,34 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [favoriteSongIds, setFavoriteSongIds] = useState<string[]>([]);
   const [activePlaylistId, setActivePlaylistId] = useState<string | null>(null);
-  const [currentSongIndex, setCurrentSongIndex] = useState<number>(-1);
+  
+  // This state tracks the playlist that is currently being played from
+  const [playingFromPlaylistId, setPlayingFromPlaylistId] = useState<string | null>(null);
+  
+  const [currentSongId, setCurrentSongId] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.5);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
+
+  const currentSong = React.useMemo(() => songs.find(s => s.id === currentSongId) || null, [currentSongId]);
   
-  const activeSongList = React.useMemo(() => {
-    if (activePlaylistId === 'favorites') {
+  const playbackList = React.useMemo(() => {
+    if (playingFromPlaylistId === 'favorites') {
       return songs.filter(song => favoriteSongIds.includes(song.id));
     }
-    if (!activePlaylistId) return songs;
-    const playlist = playlists.find(p => p.id === activePlaylistId);
-    if (!playlist) return songs; // Should not happen if activePlaylistId is not null
-    return songs.filter(song => playlist.songIds.includes(song.id));
-  }, [activePlaylistId, playlists, favoriteSongIds]);
+    const playlist = playlists.find(p => p.id === playingFromPlaylistId);
+    if (playlist) {
+      return songs.filter(song => playlist.songIds.includes(song.id));
+    }
+    return songs; // Default to all songs
+  }, [playingFromPlaylistId, playlists, favoriteSongIds]);
+  
+  const currentSongIndexInPlaybackList = React.useMemo(() => {
+    if (!currentSongId) return -1;
+    return playbackList.findIndex(s => s.id === currentSongId);
+  }, [currentSongId, playbackList]);
 
-  const currentSong = currentSongIndex > -1 ? activeSongList[currentSongIndex] : null;
 
   useEffect(() => {
     const storedPlaylists = localStorage.getItem('tuneflow-playlists');
@@ -84,23 +95,27 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     }
   }, [volume]);
   
-  const playSong = useCallback((songId: string) => {
-    const songIndex = activeSongList.findIndex(s => s.id === songId);
-    if (songIndex > -1) {
-      setCurrentSongIndex(songIndex);
+  const playSong = useCallback((songId: string, playlistIdToPlayFrom?: string | null) => {
+    const songToPlay = songs.find(s => s.id === songId);
+    if (songToPlay) {
+      setCurrentSongId(songId);
       setIsPlaying(true);
       if (audioRef.current) {
-        audioRef.current.src = activeSongList[songIndex].audioSrc;
+        audioRef.current.src = songToPlay.audioSrc;
         audioRef.current.play().catch(e => console.error("Error playing audio:", e));
       }
+      // If a playlist context is provided, set it as the current playback source
+      if (playlistIdToPlayFrom !== undefined) {
+         setPlayingFromPlaylistId(playlistIdToPlayFrom);
+      }
     }
-  }, [activeSongList]);
+  }, []);
 
   const playNext = useCallback(() => {
-    if (!currentSong) return;
-    const nextIndex = (currentSongIndex + 1) % activeSongList.length;
-    playSong(activeSongList[nextIndex].id);
-  }, [currentSong, currentSongIndex, activeSongList, playSong]);
+    if (currentSongIndexInPlaybackList === -1 || playbackList.length === 0) return;
+    const nextIndex = (currentSongIndexInPlaybackList + 1) % playbackList.length;
+    playSong(playbackList[nextIndex].id);
+  }, [currentSongIndexInPlaybackList, playbackList, playSong]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -132,9 +147,9 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const playPrev = () => {
-    if (!currentSong) return;
-    const prevIndex = (currentSongIndex - 1 + activeSongList.length) % activeSongList.length;
-    playSong(activeSongList[prevIndex].id);
+    if (currentSongIndexInPlaybackList === -1 || playbackList.length === 0) return;
+    const prevIndex = (currentSongIndexInPlaybackList - 1 + playbackList.length) % playbackList.length;
+    playSong(playbackList[prevIndex].id);
   };
   
   const seek = (newProgress: number) => {
@@ -165,10 +180,6 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   
   const selectPlaylist = (playlistId: string | null) => {
     setActivePlaylistId(playlistId);
-    setCurrentSongIndex(-1);
-    setIsPlaying(false);
-    setProgress(0);
-    if(audioRef.current) audioRef.current.src = "";
   };
 
   const toggleFavorite = (songId: string) => {
