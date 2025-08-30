@@ -11,7 +11,7 @@ import {
   Volume2,
   VolumeX,
 } from 'lucide-react';
-import Image from 'next/image';
+import React, { useState, useEffect } from 'react';
 import { Button } from './ui/button';
 import { Slider } from './ui/slider';
 import { formatDuration } from '@/lib/utils';
@@ -30,6 +30,13 @@ export default function AudioPlayer() {
     duration,
     seek,
   } = usePlayer();
+  const [lastVolume, setLastVolume] = useState(volume);
+
+  useEffect(() => {
+    if (volume > 0) {
+      setLastVolume(volume);
+    }
+  }, [volume]);
 
   if (!currentSong) {
     return (
@@ -49,6 +56,15 @@ export default function AudioPlayer() {
     seek(value[0]);
   };
   
+  const toggleMute = () => {
+    if (volume > 0) {
+      setLastVolume(volume);
+      setVolume(0);
+    } else {
+      setVolume(lastVolume > 0 ? lastVolume : 0.5);
+    }
+  };
+
   const VolumeIcon = volume === 0 ? VolumeX : volume < 0.5 ? Volume1 : Volume2;
 
 
@@ -97,7 +113,9 @@ export default function AudioPlayer() {
         {/* Volume & Extras */}
         <div className="flex items-center justify-end gap-4">
           <div className="flex w-32 items-center gap-2">
-            <VolumeIcon className="h-5 w-5" />
+            <Button variant="ghost" size="icon" onClick={toggleMute} className="h-8 w-8">
+              <VolumeIcon className="h-5 w-5" />
+            </Button>
             <Slider
               value={[volume]}
               max={1}
