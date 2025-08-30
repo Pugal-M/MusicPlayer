@@ -13,7 +13,7 @@ export type Song = {
 };
 
 export const songs: Song[] = [
-  {
+    {
     id: '1',
     title: 'Inspiring Cinematic Ambient',
     artist: 'Lexin Music',
