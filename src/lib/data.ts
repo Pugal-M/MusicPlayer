@@ -1,3 +1,4 @@
+
 export type Song = {
   id: string;
   title: string;
@@ -18,7 +19,7 @@ export const songs: Song[] = [
     artist: 'Lesfm',
     album: 'Single',
     duration: 161,
-    audioSrc: 'https://www.chosic.com/wp-content/uploads/2021/08/Inspiring-Cinematic-Ambient.mp3',
+    audioSrc: '/music/Inspiring-Cinematic-Ambient.mp3',
     imageSrc: 'https://picsum.photos/seed/1/300/300',
     genre: 'Ambient',
     tempo: 'Slow',
@@ -30,7 +31,7 @@ export const songs: Song[] = [
     artist: 'Music Unlimited',
     album: 'Sounds for Creators',
     duration: 57,
-    audioSrc: 'https://www.chosic.com/wp-content/uploads/2022/04/The-Podcast-Intro.mp3',
+    audioSrc: '/music/The-Podcast-Intro.mp3',
     imageSrc: 'https://picsum.photos/seed/2/300/300',
     genre: 'Electronic',
     tempo: 'Medium',
@@ -42,7 +43,7 @@ export const songs: Song[] = [
     artist: 'BoDleasons',
     album: 'Chill Vibes',
     duration: 133,
-    audioSrc: 'https://www.chosic.com/wp-content/uploads/2020/07/Lofi-Chill.mp3',
+    audioSrc: '/music/Lofi-Chill.mp3',
     imageSrc: 'https://picsum.photos/seed/3/300/300',
     genre: 'Lo-fi',
     tempo: 'Slow',
@@ -54,7 +55,7 @@ export const songs: Song[] = [
     artist: 'RomanBelov',
     album: 'Mystic Journeys',
     duration: 213,
-    audioSrc: 'https://www.chosic.com/wp-content/uploads/2021/08/Spirit-Blossom.mp3',
+    audioSrc: '/music/Spirit-Blossom.mp3',
     imageSrc: 'https://picsum.photos/seed/4/300/300',
     genre: 'Orchestral',
     tempo: 'Medium',
@@ -66,7 +67,7 @@ export const songs: Song[] = [
     artist: 'John Bartmann',
     album: 'World Sounds',
     duration: 131,
-    audioSrc: 'https://www.chosic.com/wp-content/uploads/2021/02/Happy-African-Village.mp3',
+    audioSrc: '/music/Happy-African-Village.mp3',
     imageSrc: 'https://picsum.photos/seed/5/300/300',
     genre: 'World',
     tempo: 'Fast',
@@ -78,7 +79,7 @@ export const songs: Song[] = [
     artist: 'Lesfm',
     album: 'Mindfulness',
     duration: 153,
-    audioSrc: 'https://www.chosic.com/wp-content/uploads/2021/08/Just-Relax.mp3',
+    audioSrc: '/music/Just-Relax.mp3',
     imageSrc: 'https://picsum.photos/seed/6/300/300',
     genre: 'Ambient',
     tempo: 'Slow',
