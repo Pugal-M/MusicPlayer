@@ -70,7 +70,7 @@ export default function AudioPlayer() {
 
   return (
     <footer className="border-t bg-card/30">
-      <div className="container mx-auto grid grid-cols-[1fr_2fr] items-center gap-4 p-4 md:grid-cols-3 md:gap-8">
+      <div className="container mx-auto grid grid-cols-[auto_1fr_auto] items-center gap-4 p-4 md:grid-cols-3">
         {/* Now Playing */}
         <div className="flex items-center gap-4 truncate">
           <SongImage 
@@ -112,8 +112,7 @@ export default function AudioPlayer() {
         </div>
 
         {/* Volume & Extras */}
-        <div className="hidden items-center justify-end gap-4 md:flex">
-          <div className="flex w-32 items-center gap-2">
+        <div className="flex items-center justify-end gap-2 md:w-32">
             <Button variant="ghost" size="icon" onClick={toggleMute} className="h-8 w-8">
               <VolumeIcon className="h-5 w-5" />
             </Button>
@@ -122,8 +121,8 @@ export default function AudioPlayer() {
               max={1}
               step={0.01}
               onValueChange={handleVolumeChange}
+              className="hidden md:flex"
             />
-          </div>
         </div>
       </div>
     </footer>
