@@ -16,6 +16,8 @@ import { Button } from './ui/button';
 import { Slider } from './ui/slider';
 import { formatDuration } from '@/lib/utils';
 import SongImage from './SongImage';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 
 export default function AudioPlayer() {
   const {
@@ -31,6 +33,8 @@ export default function AudioPlayer() {
     seek,
   } = usePlayer();
   const [lastVolume, setLastVolume] = useState(volume);
+  const [isVolumeDialogOpen, setIsVolumeDialogOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (volume > 0) {
@@ -113,18 +117,44 @@ export default function AudioPlayer() {
 
         {/* Volume & Extras */}
         <div className="flex items-center justify-end gap-2 md:w-32">
-            <Button variant="ghost" size="icon" onClick={toggleMute} className="h-8 w-8">
-              <VolumeIcon className="h-5 w-5" />
-            </Button>
-            <Slider
-              value={[volume]}
-              max={1}
-              step={0.01}
-              onValueChange={handleVolumeChange}
-              className="hidden md:flex"
-            />
+            {isMobile ? (
+              <Button variant="ghost" size="icon" onClick={() => setIsVolumeDialogOpen(true)} className="h-8 w-8">
+                <VolumeIcon className="h-5 w-5" />
+              </Button>
+            ) : (
+              <>
+                <Button variant="ghost" size="icon" onClick={toggleMute} className="h-8 w-8">
+                  <VolumeIcon className="h-5 w-5" />
+                </Button>
+                <Slider
+                  value={[volume]}
+                  max={1}
+                  step={0.01}
+                  onValueChange={handleVolumeChange}
+                  className="hidden md:flex"
+                />
+              </>
+            )}
         </div>
       </div>
+      <Dialog open={isVolumeDialogOpen} onOpenChange={setIsVolumeDialogOpen}>
+        <DialogContent>
+            <DialogHeader>
+                <DialogTitle>Volume</DialogTitle>
+            </DialogHeader>
+            <div className="flex items-center gap-4 py-4">
+                <Button variant="ghost" size="icon" onClick={toggleMute} className="h-8 w-8">
+                  <VolumeIcon className="h-5 w-5" />
+                </Button>
+                <Slider
+                    value={[volume]}
+                    max={1}
+                    step={0.01}
+                    onValueChange={handleVolumeChange}
+                />
+            </div>
+        </DialogContent>
+      </Dialog>
     </footer>
   );
 }
