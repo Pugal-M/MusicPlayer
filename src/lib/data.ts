@@ -81,7 +81,7 @@ export const songs: Song[] = [
     title: 'Arabic Kuthu - Halamithi Habibo',
     artist: 'Anirudh Ravichander',
     album: 'Beast',
-    duration: 0, // replace with actual duration when available
+    duration: 279, // replace with actual duration when available
     audioSrc: '/music/Arabic-Kuthu---Halamithi-Habibo-MassTamilan.so.mp3',
     imageSrc: 'https://picsum.photos/seed/5/200/200',
     genre: 'Tamil',

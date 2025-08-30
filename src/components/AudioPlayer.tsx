@@ -86,7 +86,7 @@ export default function AudioPlayer() {
         </div>
 
         {/* Player Controls */}
-        <div className="flex flex-col items-center justify-center gap-2">
+        <div className="flex w-full flex-col items-center justify-center gap-2">
           <div className="flex items-center gap-2 md:gap-4">
             <Button variant="ghost" size="icon" onClick={playPrev}>
               <SkipBack />
@@ -98,15 +98,16 @@ export default function AudioPlayer() {
               <SkipForward />
             </Button>
           </div>
-          <div className="flex w-full max-w-md items-center gap-2">
-            <span className="text-xs text-muted-foreground">{formatDuration(progress)}</span>
+          <div className="flex w-full items-center gap-2">
+            <span className="w-12 text-right text-xs text-muted-foreground">{formatDuration(progress)}</span>
             <Slider
               value={[progress]}
               max={duration}
               step={1}
               onValueChange={handleProgressChange}
+              className="w-full"
             />
-            <span className="text-xs text-muted-foreground">{formatDuration(duration)}</span>
+            <span className="w-12 text-left text-xs text-muted-foreground">{formatDuration(duration)}</span>
           </div>
         </div>
 
