@@ -1,3 +1,4 @@
+
 "use client";
 
 import { usePlayer } from '@/context/PlayerContext';
@@ -53,24 +54,24 @@ export default function AudioPlayer() {
 
   return (
     <footer className="border-t bg-card/30">
-      <div className="container mx-auto grid h-24 grid-cols-3 items-center p-4">
+      <div className="container mx-auto grid h-24 grid-cols-[1fr_auto_1fr] items-center gap-4 p-4 md:grid-cols-3">
         {/* Now Playing */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 truncate">
           <SongImage 
             song={currentSong} 
             width={64}
             height={64}
             className="aspect-square rounded-md object-cover"
           />
-          <div>
-            <p className="font-semibold">{currentSong.title}</p>
-            <p className="text-sm text-muted-foreground">{currentSong.artist}</p>
+          <div className="hidden truncate md:block">
+            <p className="font-semibold truncate">{currentSong.title}</p>
+            <p className="text-sm text-muted-foreground truncate">{currentSong.artist}</p>
           </div>
         </div>
 
         {/* Player Controls */}
         <div className="flex flex-col items-center justify-center gap-2">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
             <Button variant="ghost" size="icon" onClick={playPrev}>
               <SkipBack />
             </Button>
@@ -101,7 +102,7 @@ export default function AudioPlayer() {
               value={[volume]}
               max={1}
               step={0.01}
-              onValueChange={handleVolumeChange}
+              onValueValueChange={handleVolumeChange}
             />
           </div>
         </div>
