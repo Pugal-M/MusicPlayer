@@ -4,8 +4,7 @@
 import { usePlayer, type Playlist } from '@/context/PlayerContext';
 import type { Song } from '@/lib/data';
 import { formatDuration, cn } from '@/lib/utils';
-import { MoreHorizontal, Music, Play, Plus, Pause, Volume2, Heart, Info, X } from 'lucide-react';
-import Image from 'next/image';
+import { MoreHorizontal, Music, Plus, Volume2, Heart, Info, X } from 'lucide-react';
 import React, { useMemo, useState } from 'react';
 
 import { Button } from './ui/button';
@@ -29,7 +28,7 @@ import {
 } from './ui/table';
 import { ScrollArea } from './ui/scroll-area';
 import SongImage from './SongImage';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from './ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Separator } from './ui/separator';
 
@@ -37,7 +36,7 @@ type SortKey = keyof Song | 'duration';
 type SortDirection = 'asc' | 'desc';
 
 export default function SongList() {
-  const { allSongs, playlists, activePlaylistId, addSongToPlaylist, playSong, currentSong, isPlaying, togglePlayPause, favoriteSongIds, toggleFavorite } = usePlayer();
+  const { allSongs, playlists, activePlaylistId, addSongToPlaylist, playSong, currentSong, isPlaying, favoriteSongIds, toggleFavorite } = usePlayer();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<{
     key: SortKey;
@@ -107,11 +106,7 @@ export default function SongList() {
   };
   
   const handlePlayClick = (songId: string) => {
-    if (currentSong?.id === songId) {
-      togglePlayPause();
-    } else {
-      playSong(songId, activePlaylistId);
-    }
+    playSong(songId, activePlaylistId);
   }
 
 
@@ -142,16 +137,21 @@ export default function SongList() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {displayedSongs.map(song => (
-              <TableRow key={song.id} className="group cursor-pointer" onDoubleClick={() => playSong(song.id, activePlaylistId)}>
-                <TableCell>
-                  <Button variant="ghost" size="icon" onClick={() => handlePlayClick(song.id)}>
-                    {currentSong?.id === song.id && isPlaying ? (
-                       <Volume2 className="h-5 w-5 text-primary animate-pulse"/>
-                    ) : (
-                       <Play className="h-5 w-5 group-hover:text-primary"/>
-                    )}
-                  </Button>
+            {displayedSongs.map((song, index) => (
+              <TableRow 
+                key={song.id} 
+                className={cn(
+                  "group cursor-pointer",
+                  currentSong?.id === song.id && "bg-primary/20 hover:bg-primary/30"
+                )}
+                onClick={() => handlePlayClick(song.id)}
+              >
+                <TableCell className="font-tabular text-right text-muted-foreground">
+                  {currentSong?.id === song.id && isPlaying ? (
+                    <Volume2 className="h-5 w-5 text-primary animate-pulse mx-auto" />
+                  ) : (
+                    <span className="group-hover:hidden">{index + 1}</span>
+                  )}
                 </TableCell>
                 <TableCell className="flex items-center gap-4">
                    <SongImage 
@@ -160,12 +160,19 @@ export default function SongList() {
                     height={40}
                     className="aspect-square rounded-md object-cover"
                   />
-                  <span className="font-medium truncate">{song.title}</span>
+                  <div>
+                    <p className={cn("font-medium truncate", currentSong?.id === song.id && "text-primary")}>{song.title}</p>
+                    <p className="text-muted-foreground md:hidden">{song.artist}</p>
+                  </div>
                 </TableCell>
                 <TableCell className="hidden md:table-cell">{song.artist}</TableCell>
                 <TableCell className="hidden md:table-cell">{song.album}</TableCell>
                 <TableCell className="text-center">
-                    <Button variant="ghost" size="icon" onClick={() => toggleFavorite(song.id)}>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={(e) => { e.stopPropagation(); toggleFavorite(song.id); }}
+                    >
                         <Heart className={cn("h-5 w-5", favoriteSongIds.includes(song.id) ? "text-red-500 fill-current" : "text-muted-foreground")}/>
                     </Button>
                 </TableCell>
@@ -173,7 +180,7 @@ export default function SongList() {
                   {formatDuration(song.duration)}
                 </TableCell>
                 <TableCell>
-                   <div className="flex justify-end">
+                   <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
                       {isMobile ? (
                         <Button variant="ghost" size="icon" onClick={() => setSelectedSongForInfo(song)}>
                           <Info className="h-5 w-5" />
