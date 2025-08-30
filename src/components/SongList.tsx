@@ -5,7 +5,7 @@ import { usePlayer, type Playlist } from '@/context/PlayerContext';
 import type { Song } from '@/lib/data';
 import { formatDuration, cn } from '@/lib/utils';
 import { MoreHorizontal, Music, Plus, Volume2, Heart, Info, X } from 'lucide-react';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useRef } from 'react';
 
 import { Button } from './ui/button';
 import {
@@ -44,6 +44,31 @@ export default function SongList() {
   } | null>(null);
   const [selectedSongForInfo, setSelectedSongForInfo] = useState<Song | null>(null);
   const isMobile = useIsMobile();
+  const longPressTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  const handleMouseDown = (song: Song) => {
+    longPressTimeout.current = setTimeout(() => {
+      setSelectedSongForInfo(song);
+    }, 500); // 500ms for long press
+  };
+
+  const handleMouseUp = () => {
+    if (longPressTimeout.current) {
+      clearTimeout(longPressTimeout.current);
+    }
+  };
+
+  const handleTouchStart = (song: Song) => {
+    longPressTimeout.current = setTimeout(() => {
+      setSelectedSongForInfo(song);
+    }, 500);
+  };
+
+  const handleTouchEnd = () => {
+    if (longPressTimeout.current) {
+      clearTimeout(longPressTimeout.current);
+    }
+  };
 
 
   const activePlaylist = useMemo(() => playlists.find(p => p.id === activePlaylistId), [playlists, activePlaylistId]);
@@ -105,8 +130,11 @@ export default function SongList() {
     setSortConfig({ key, direction });
   };
   
-  const handlePlayClick = (songId: string) => {
-    playSong(songId, activePlaylistId);
+  const handlePlayClick = (songId: string, e: React.MouseEvent | React.TouchEvent) => {
+    handleMouseUp();
+    if (e.type !== 'touchend' || !longPressTimeout.current) {
+       playSong(songId, activePlaylistId);
+    }
   }
 
 
@@ -129,7 +157,6 @@ export default function SongList() {
               <TableHead onClick={() => requestSort('title')}>Title</TableHead>
               <TableHead className="hidden md:table-cell" onClick={() => requestSort('artist')}>Artist</TableHead>
               <TableHead className="hidden md:table-cell" onClick={() => requestSort('album')}>Album</TableHead>
-              <TableHead className="w-12 text-center">Favorite</TableHead>
               <TableHead className="text-right hidden md:table-cell" onClick={() => requestSort('duration')}>
                 Duration
               </TableHead>
@@ -144,7 +171,12 @@ export default function SongList() {
                   "group cursor-pointer",
                   currentSong?.id === song.id && "bg-primary/20 hover:bg-primary/30"
                 )}
-                onClick={() => handlePlayClick(song.id)}
+                onClick={(e) => handlePlayClick(song.id, e)}
+                onMouseDown={() => handleMouseDown(song)}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+                onTouchStart={() => handleTouchStart(song)}
+                onTouchEnd={handleTouchEnd}
               >
                 <TableCell className="font-tabular text-right text-muted-foreground">
                   {currentSong?.id === song.id && isPlaying ? (
@@ -167,27 +199,12 @@ export default function SongList() {
                 </TableCell>
                 <TableCell className="hidden md:table-cell">{song.artist}</TableCell>
                 <TableCell className="hidden md:table-cell">{song.album}</TableCell>
-                <TableCell className="text-center">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={(e) => { e.stopPropagation(); toggleFavorite(song.id); }}
-                    >
-                        <Heart className={cn("h-5 w-5", favoriteSongIds.includes(song.id) ? "text-red-500 fill-current" : "text-muted-foreground")}/>
-                    </Button>
-                </TableCell>
                 <TableCell className="text-right hidden md:table-cell">
                   {formatDuration(song.duration)}
                 </TableCell>
                 <TableCell>
                    <div className="flex justify-end" onClick={(e) => e.stopPropagation()}>
-                      {isMobile ? (
-                        <Button variant="ghost" size="icon" onClick={() => setSelectedSongForInfo(song)}>
-                          <Info className="h-5 w-5" />
-                        </Button>
-                      ) : (
-                        <AddToPlaylistDropdown song={song} playlists={playlists} onAdd={addSongToPlaylist} />
-                      )}
+                    <AddToPlaylistDropdown song={song} playlists={playlists} onAdd={addSongToPlaylist} />
                    </div>
                 </TableCell>
               </TableRow>
@@ -195,7 +212,13 @@ export default function SongList() {
           </TableBody>
         </Table>
       </ScrollArea>
-       <SongInfoDialog song={selectedSongForInfo} open={!!selectedSongForInfo} onOpenChange={() => setSelectedSongForInfo(null)}>
+       <SongInfoDialog 
+          song={selectedSongForInfo} 
+          open={!!selectedSongForInfo} 
+          onOpenChange={() => setSelectedSongForInfo(null)}
+          isFavorite={selectedSongForInfo ? favoriteSongIds.includes(selectedSongForInfo.id) : false}
+          onFavoriteToggle={() => selectedSongForInfo && toggleFavorite(selectedSongForInfo.id)}
+        >
         {selectedSongForInfo && (
           <div className="flex flex-col gap-4 pt-4">
               <AddToPlaylistDropdown song={selectedSongForInfo} playlists={playlists} onAdd={addSongToPlaylist} showTrigger />
@@ -242,7 +265,7 @@ function AddToPlaylistDropdown({ song, playlists, onAdd, showTrigger = false }: 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 md:opacity-100">
+        <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100">
           <MoreHorizontal className="h-5 w-5" />
         </Button>
       </DropdownMenuTrigger>
@@ -253,24 +276,48 @@ function AddToPlaylistDropdown({ song, playlists, onAdd, showTrigger = false }: 
   );
 }
 
-function SongInfoDialog({ song, open, onOpenChange, children }: { song: Song | null, open: boolean, onOpenChange: (open: boolean) => void, children?: React.ReactNode }) {
+function SongInfoDialog({ 
+  song, 
+  open, 
+  onOpenChange, 
+  children,
+  isFavorite,
+  onFavoriteToggle
+}: { 
+  song: Song | null, 
+  open: boolean, 
+  onOpenChange: (open: boolean) => void, 
+  children?: React.ReactNode,
+  isFavorite: boolean,
+  onFavoriteToggle: () => void
+}) {
   if (!song) return null;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <div className="flex items-center gap-4">
-             <SongImage 
-                song={song} 
-                width={80}
-                height={80}
-                className="aspect-square rounded-md object-cover"
-              />
-              <div>
-                <DialogTitle className="text-2xl">{song.title}</DialogTitle>
-                <p className="text-lg text-muted-foreground">{song.artist}</p>
-              </div>
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-4">
+                <SongImage 
+                  song={song} 
+                  width={80}
+                  height={80}
+                  className="aspect-square rounded-md object-cover"
+                />
+                <div>
+                  <DialogTitle className="text-2xl">{song.title}</DialogTitle>
+                  <p className="text-lg text-muted-foreground">{song.artist}</p>
+                </div>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={(e) => { e.stopPropagation(); onFavoriteToggle(); }}
+              className="mt-1"
+            >
+                <Heart className={cn("h-6 w-6", isFavorite ? "text-red-500 fill-current" : "text-muted-foreground")}/>
+            </Button>
           </div>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-x-4 gap-y-2 py-4">
@@ -301,4 +348,6 @@ function SongInfoDialog({ song, open, onOpenChange, children }: { song: Song | n
     </Dialog>
   );
 }
+    
+
     
