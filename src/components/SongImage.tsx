@@ -46,7 +46,7 @@ export default function SongImage({ song, width, height, className }: SongImageP
       try {
         const response = await fetch(song.audioSrc);
         if (!response.ok) {
-          throw new Error('Failed to fetch audio file');
+          throw new Error(`Failed to fetch audio file. Status: ${response.status}. URL: ${song.audioSrc}`);
         }
         const blob = await response.blob();
 
@@ -77,7 +77,7 @@ export default function SongImage({ song, width, height, className }: SongImageP
         });
       } catch (error) {
         if (isCancelled) return;
-        console.error('Error fetching audio file:', error);
+        console.error('Error in fetchAndReadTags:', error);
         songImageCache[song.id] = song.imageSrc; // cache fallback on error
         setImageSrc(song.imageSrc); // fallback on error
         setLoading(false);
