@@ -36,7 +36,7 @@ type SortKey = keyof Song | 'duration';
 type SortDirection = 'asc' | 'desc';
 
 export default function SongList() {
-  const { allSongs, playlists, activePlaylistId, addSongToPlaylist, playSong, currentSong, isPlaying, favoriteSongIds, toggleFavorite } from usePlayer();
+  const { allSongs, playlists, activePlaylistId, addSongToPlaylist, playSong, currentSong, isPlaying, favoriteSongIds, toggleFavorite } = usePlayer();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<{
     key: SortKey;
