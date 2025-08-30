@@ -1,17 +1,29 @@
 
 "use client";
 
-import { Music, Plus, ListMusic, Music2, Heart } from 'lucide-react';
+import { Music, Plus, ListMusic, Music2, Heart, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePlayer } from '@/context/PlayerContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 import { useSidebar } from './ui/sidebar';
 
 export default function AppSidebar() {
-  const { playlists, createPlaylist, selectPlaylist, activePlaylistId } = usePlayer();
+  const { playlists, createPlaylist, selectPlaylist, activePlaylistId, deletePlaylist } = usePlayer();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [playlistToDelete, setPlaylistToDelete] = useState<string | null>(null);
   const [newPlaylistName, setNewPlaylistName] = useState('');
   const { state } = useSidebar();
 
@@ -22,6 +34,19 @@ export default function AppSidebar() {
       setNewPlaylistName('');
       setIsDialogOpen(false);
     }
+  };
+  
+  const openDeleteConfirm = (playlistId: string) => {
+    setPlaylistToDelete(playlistId);
+    setIsAlertOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (playlistToDelete) {
+      deletePlaylist(playlistToDelete);
+      setPlaylistToDelete(null);
+    }
+    setIsAlertOpen(false);
   };
 
   return (
@@ -58,15 +83,27 @@ export default function AppSidebar() {
           </div>
           <div className="flex flex-col gap-1">
             {playlists.map((playlist) => (
-              <Button
-                key={playlist.id}
-                variant={activePlaylistId === playlist.id ? "secondary" : "ghost"}
-                className="justify-start gap-2"
-                onClick={() => selectPlaylist(playlist.id)}
-              >
-                <ListMusic className="h-4 w-4" />
-                <span className="truncate group-data-[collapsible=icon]:hidden">{playlist.name}</span>
-              </Button>
+              <div key={playlist.id} className="group relative flex items-center" >
+                <Button
+                  variant={activePlaylistId === playlist.id ? "secondary" : "ghost"}
+                  className="w-full justify-start gap-2"
+                  onClick={() => selectPlaylist(playlist.id)}
+                >
+                  <ListMusic className="h-4 w-4" />
+                  <span className="truncate group-data-[collapsible=icon]:hidden">{playlist.name}</span>
+                </Button>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        openDeleteConfirm(playlist.id);
+                    }}
+                    className="absolute right-1 h-7 w-7 opacity-0 group-hover:opacity-100 group-data-[collapsible=icon]:hidden"
+                >
+                    <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             ))}
           </div>
         </div>
@@ -89,6 +126,21 @@ export default function AppSidebar() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      
+       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete your playlist.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDelete}>Delete</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </aside>
   );
 }

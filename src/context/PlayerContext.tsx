@@ -28,6 +28,7 @@ type PlayerContextType = {
   setVolume: (volume: number) => void;
   seek: (progress: number) => void;
   createPlaylist: (name: string, songIds?: string[]) => void;
+  deletePlaylist: (playlistId: string) => void;
   addSongToPlaylist: (playlistId: string, songId: string) => void;
   selectPlaylist: (playlistId: string | null) => void;
   toggleFavorite: (songId: string) => void;
@@ -167,6 +168,16 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     };
     setPlaylists(prev => [...prev, newPlaylist]);
   };
+  
+  const deletePlaylist = (playlistId: string) => {
+    setPlaylists(prev => prev.filter(p => p.id !== playlistId));
+    if (activePlaylistId === playlistId) {
+      setActivePlaylistId(null);
+    }
+     if (playingFromPlaylistId === playlistId) {
+      setPlayingFromPlaylistId(null);
+    }
+  };
 
   const addSongToPlaylist = (playlistId: string, songId: string) => {
     setPlaylists(prev =>
@@ -209,6 +220,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
         setVolume,
         seek,
         createPlaylist,
+        deletePlaylist,
         addSongToPlaylist,
         selectPlaylist,
         toggleFavorite
