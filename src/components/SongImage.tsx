@@ -1,10 +1,12 @@
+
 "use client";
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import type { Song } from '@/lib/data';
 import { cn } from '@/lib/utils';
-import jsmediatags from 'jsmediatags';
+import jsmediatags from 'jsmediatags/dist/jsmediatags.min.js';
+
 
 interface SongImageProps {
   song: Song;
