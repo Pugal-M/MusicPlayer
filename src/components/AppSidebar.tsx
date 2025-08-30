@@ -1,6 +1,7 @@
+
 "use client";
 
-import { Music, Plus, ListMusic, Music2 } from 'lucide-react';
+import { Music, Plus, ListMusic, Music2, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { usePlayer } from '@/context/PlayerContext';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -36,6 +37,14 @@ export default function AppSidebar() {
             >
               <Music className="h-4 w-4" />
               All Songs
+            </Button>
+            <Button
+              variant={activePlaylistId === 'favorites' ? "secondary" : "ghost"}
+              className="justify-start gap-2"
+              onClick={() => selectPlaylist('favorites')}
+            >
+              <Heart className="h-4 w-4" />
+              Favorites
             </Button>
         </div>
         <div className="flex flex-col gap-2">

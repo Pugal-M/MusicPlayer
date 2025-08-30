@@ -20,6 +20,7 @@ type PlayerContextType = {
   volume: number;
   progress: number;
   duration: number;
+  favoriteSongIds: string[];
   playSong: (songId: string) => void;
   togglePlayPause: () => void;
   playNext: () => void;
@@ -29,6 +30,7 @@ type PlayerContextType = {
   createPlaylist: (name: string, songIds?: string[]) => void;
   addSongToPlaylist: (playlistId: string, songId: string) => void;
   selectPlaylist: (playlistId: string | null) => void;
+  toggleFavorite: (songId: string) => void;
 };
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -36,6 +38,7 @@ const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
 export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [favoriteSongIds, setFavoriteSongIds] = useState<string[]>([]);
   const [activePlaylistId, setActivePlaylistId] = useState<string | null>(null);
   const [currentSongIndex, setCurrentSongIndex] = useState<number>(-1);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -44,11 +47,14 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const [duration, setDuration] = useState(0);
   
   const activeSongList = React.useMemo(() => {
+    if (activePlaylistId === 'favorites') {
+      return songs.filter(song => favoriteSongIds.includes(song.id));
+    }
     if (!activePlaylistId) return songs;
     const playlist = playlists.find(p => p.id === activePlaylistId);
-    if (!playlist) return songs;
+    if (!playlist) return songs; // Should not happen if activePlaylistId is not null
     return songs.filter(song => playlist.songIds.includes(song.id));
-  }, [activePlaylistId, playlists]);
+  }, [activePlaylistId, playlists, favoriteSongIds]);
 
   const currentSong = currentSongIndex > -1 ? activeSongList[currentSongIndex] : null;
 
@@ -57,11 +63,19 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     if (storedPlaylists) {
       setPlaylists(JSON.parse(storedPlaylists));
     }
+    const storedFavorites = localStorage.getItem('tuneflow-favorites');
+    if (storedFavorites) {
+      setFavoriteSongIds(JSON.parse(storedFavorites));
+    }
   }, []);
 
   useEffect(() => {
     localStorage.setItem('tuneflow-playlists', JSON.stringify(playlists));
   }, [playlists]);
+
+  useEffect(() => {
+    localStorage.setItem('tuneflow-favorites', JSON.stringify(favoriteSongIds));
+  }, [favoriteSongIds]);
   
   useEffect(() => {
     const audio = audioRef.current;
@@ -157,6 +171,14 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     if(audioRef.current) audioRef.current.src = "";
   };
 
+  const toggleFavorite = (songId: string) => {
+    setFavoriteSongIds(prev =>
+      prev.includes(songId)
+        ? prev.filter(id => id !== songId)
+        : [...prev, songId]
+    );
+  };
+
   return (
     <PlayerContext.Provider
       value={{
@@ -168,6 +190,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
         volume,
         progress,
         duration,
+        favoriteSongIds,
         playSong,
         togglePlayPause,
         playNext,
@@ -177,6 +200,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
         createPlaylist,
         addSongToPlaylist,
         selectPlaylist,
+        toggleFavorite
       }}
     >
       {children}

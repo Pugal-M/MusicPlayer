@@ -1,9 +1,10 @@
+
 "use client";
 
 import { usePlayer, type Playlist } from '@/context/PlayerContext';
 import type { Song } from '@/lib/data';
-import { formatDuration } from '@/lib/utils';
-import { MoreHorizontal, Music, Play, Plus, Pause, Volume2 } from 'lucide-react';
+import { formatDuration, cn } from '@/lib/utils';
+import { MoreHorizontal, Music, Play, Plus, Pause, Volume2, Heart } from 'lucide-react';
 import Image from 'next/image';
 import React, { useMemo, useState } from 'react';
 
@@ -32,7 +33,7 @@ type SortKey = keyof Song | 'duration';
 type SortDirection = 'asc' | 'desc';
 
 export default function SongList() {
-  const { allSongs, playlists, activePlaylistId, addSongToPlaylist, playSong, currentSong, isPlaying, togglePlayPause } = usePlayer();
+  const { allSongs, playlists, activePlaylistId, addSongToPlaylist, playSong, currentSong, isPlaying, togglePlayPause, favoriteSongIds, toggleFavorite, selectPlaylist } = usePlayer();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<{
     key: SortKey;
@@ -41,10 +42,24 @@ export default function SongList() {
 
   const activePlaylist = useMemo(() => playlists.find(p => p.id === activePlaylistId), [playlists, activePlaylistId]);
 
+  const getPlaylistName = () => {
+    if (activePlaylistId === 'favorites') return 'Favorites';
+    if (activePlaylist) return activePlaylist.name;
+    return 'All Songs';
+  }
+
   const displayedSongs = useMemo(() => {
-    let songsToShow = activePlaylistId
-      ? allSongs.filter(song => activePlaylist?.songIds.includes(song.id))
-      : allSongs;
+    let songsToShow: Song[];
+
+    if (activePlaylistId === 'favorites') {
+      songsToShow = allSongs.filter(song => favoriteSongIds.includes(song.id));
+    } else if (activePlaylistId) {
+      const playlist = playlists.find(p => p.id === activePlaylistId);
+      songsToShow = playlist ? allSongs.filter(song => playlist.songIds.includes(song.id)) : [];
+    } else {
+      songsToShow = allSongs;
+    }
+
 
     if (searchTerm) {
       songsToShow = songsToShow.filter(
@@ -68,7 +83,7 @@ export default function SongList() {
     }
 
     return songsToShow;
-  }, [allSongs, activePlaylist, activePlaylistId, searchTerm, sortConfig]);
+  }, [allSongs, activePlaylistId, playlists, favoriteSongIds, searchTerm, sortConfig]);
 
   const requestSort = (key: SortKey) => {
     let direction: SortDirection = 'asc';
@@ -94,7 +109,7 @@ export default function SongList() {
   return (
     <div className="flex h-full flex-col gap-4 p-4 lg:p-6">
       <header className="flex flex-col gap-2">
-         <h2 className="text-3xl font-bold tracking-tight">{activePlaylist ? activePlaylist.name : 'All Songs'}</h2>
+         <h2 className="text-3xl font-bold tracking-tight">{getPlaylistName()}</h2>
         <Input
           placeholder="Search songs, artists, or albums..."
           value={searchTerm}
@@ -110,6 +125,7 @@ export default function SongList() {
               <TableHead onClick={() => requestSort('title')}>Title</TableHead>
               <TableHead onClick={() => requestSort('artist')}>Artist</TableHead>
               <TableHead onClick={() => requestSort('album')}>Album</TableHead>
+              <TableHead className="w-12 text-center">Favorite</TableHead>
               <TableHead className="text-right" onClick={() => requestSort('duration')}>
                 Duration
               </TableHead>
@@ -141,6 +157,11 @@ export default function SongList() {
                 </TableCell>
                 <TableCell>{song.artist}</TableCell>
                 <TableCell>{song.album}</TableCell>
+                <TableCell className="text-center">
+                    <Button variant="ghost" size="icon" onClick={() => toggleFavorite(song.id)}>
+                        <Heart className={cn("h-5 w-5", favoriteSongIds.includes(song.id) ? "text-red-500 fill-current" : "text-muted-foreground")}/>
+                    </Button>
+                </TableCell>
                 <TableCell className="text-right">
                   {formatDuration(song.duration)}
                 </TableCell>
