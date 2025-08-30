@@ -9,14 +9,11 @@ import {
   Volume1,
   Volume2,
   VolumeX,
-  Sparkles
 } from 'lucide-react';
 import Image from 'next/image';
 import { Button } from './ui/button';
 import { Slider } from './ui/slider';
 import { formatDuration } from '@/lib/utils';
-import { useState } from 'react';
-import AISuggestions from './AISuggestions';
 
 export default function AudioPlayer() {
   const {
@@ -31,7 +28,6 @@ export default function AudioPlayer() {
     duration,
     seek,
   } = usePlayer();
-  const [isSuggestionsOpen, setIsSuggestionsOpen] = useState(false);
 
   if (!currentSong) {
     return (
@@ -100,9 +96,6 @@ export default function AudioPlayer() {
 
         {/* Volume & Extras */}
         <div className="flex items-center justify-end gap-4">
-           <Button variant="ghost" size="icon" onClick={() => setIsSuggestionsOpen(true)}>
-             <Sparkles className="h-5 w-5 text-accent" />
-           </Button>
           <div className="flex w-32 items-center gap-2">
             <VolumeIcon className="h-5 w-5" />
             <Slider
@@ -114,7 +107,6 @@ export default function AudioPlayer() {
           </div>
         </div>
       </div>
-      <AISuggestions open={isSuggestionsOpen} onOpenChange={setIsSuggestionsOpen} currentSong={currentSong}/>
     </footer>
   );
 }
