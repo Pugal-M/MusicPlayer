@@ -42,34 +42,49 @@ export default function SongImage({ song, width, height, className }: SongImageP
       return;
     }
 
-    // jsmediatags needs a full URL to fetch the file on the client-side
-    const audioUrl = new URL(song.audioSrc, window.location.origin).href;
-
-    jsmediatags.read(audioUrl, {
-      onSuccess: (tag) => {
-        if (isCancelled) return;
-        const { picture } = tag.tags;
-        if (picture) {
-          const base64String = btoa(
-            new Uint8Array(picture.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
-          );
-          const dataUrl = `data:${picture.format};base64,${base64String}`;
-          songImageCache[song.id] = dataUrl;
-          setImageSrc(dataUrl);
-        } else {
-          songImageCache[song.id] = song.imageSrc; // cache fallback
-          setImageSrc(song.imageSrc); // fallback
+    const fetchAndReadTags = async () => {
+      try {
+        const response = await fetch(song.audioSrc);
+        if (!response.ok) {
+          throw new Error('Failed to fetch audio file');
         }
-        setLoading(false);
-      },
-      onError: (error) => {
+        const blob = await response.blob();
+
+        jsmediatags.read(blob, {
+          onSuccess: (tag) => {
+            if (isCancelled) return;
+            const { picture } = tag.tags;
+            if (picture) {
+              const base64String = btoa(
+                new Uint8Array(picture.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
+              );
+              const dataUrl = `data:${picture.format};base64,${base64String}`;
+              songImageCache[song.id] = dataUrl;
+              setImageSrc(dataUrl);
+            } else {
+              songImageCache[song.id] = song.imageSrc; // cache fallback
+              setImageSrc(song.imageSrc); // fallback
+            }
+            setLoading(false);
+          },
+          onError: (error) => {
+            if (isCancelled) return;
+            console.error('Error reading MP3 tags from blob:', error);
+            songImageCache[song.id] = song.imageSrc; // cache fallback on error
+            setImageSrc(song.imageSrc); // fallback on error
+            setLoading(false);
+          },
+        });
+      } catch (error) {
         if (isCancelled) return;
-        console.error('Error reading MP3 tags:', error);
+        console.error('Error fetching audio file:', error);
         songImageCache[song.id] = song.imageSrc; // cache fallback on error
         setImageSrc(song.imageSrc); // fallback on error
         setLoading(false);
-      },
-    });
+      }
+    };
+    
+    fetchAndReadTags();
 
     return () => {
       isCancelled = true;
