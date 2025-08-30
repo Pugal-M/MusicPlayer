@@ -36,7 +36,7 @@ type SortKey = keyof Song | 'duration';
 type SortDirection = 'asc' | 'desc';
 
 export default function SongList() {
-  const { allSongs, playlists, activePlaylistId, addSongToPlaylist, playSong, currentSong, isPlaying, favoriteSongIds, toggleFavorite } = usePlayer();
+  const { allSongs, playlists, activePlaylistId, addSongToPlaylist, playSong, currentSong, isPlaying, favoriteSongIds, toggleFavorite } from usePlayer();
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<{
     key: SortKey;
@@ -131,7 +131,8 @@ export default function SongList() {
   };
   
   const handlePlayClick = (songId: string, e: React.MouseEvent | React.TouchEvent) => {
-    handleMouseUp();
+    handleMouseUp(); // Clear long press timeout
+    // Prevent playing if it was a long press that opened the dialog
     if (e.type !== 'touchend' || !longPressTimeout.current) {
        playSong(songId, activePlaylistId);
     }
