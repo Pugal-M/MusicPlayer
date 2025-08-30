@@ -6,7 +6,7 @@ import Image from 'next/image';
 import type { Song } from '@/lib/data';
 import { cn } from '@/lib/utils';
 import jsmediatags from 'jsmediatags/dist/jsmediatags.min.js';
-
+import { Skeleton } from './ui/skeleton';
 
 interface SongImageProps {
   song: Song;
@@ -19,39 +19,66 @@ const songImageCache: Record<string, string> = {};
 
 
 export default function SongImage({ song, width, height, className }: SongImageProps) {
-  const [imageSrc, setImageSrc] = useState<string>(song.imageSrc);
+  const [imageSrc, setImageSrc] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isCancelled = false;
+    setLoading(true);
+    
     if (songImageCache[song.id]) {
+      if (!isCancelled) {
         setImageSrc(songImageCache[song.id]);
-        return;
-    }
-  
-    if (!song.audioSrc) {
-      setImageSrc(song.imageSrc); // fallback
+        setLoading(false);
+      }
       return;
     }
 
-    jsmediatags.read(song.audioSrc, {
+    if (!song.audioSrc) {
+      if (!isCancelled) {
+        setImageSrc(song.imageSrc);
+        setLoading(false);
+      }
+      return;
+    }
+
+    // jsmediatags needs a full URL to fetch the file on the client-side
+    const audioUrl = new URL(song.audioSrc, window.location.origin).href;
+
+    jsmediatags.read(audioUrl, {
       onSuccess: (tag) => {
+        if (isCancelled) return;
         const { picture } = tag.tags;
         if (picture) {
           const base64String = btoa(
             new Uint8Array(picture.data).reduce((data, byte) => data + String.fromCharCode(byte), '')
           );
           const dataUrl = `data:${picture.format};base64,${base64String}`;
-          setImageSrc(dataUrl);
           songImageCache[song.id] = dataUrl;
+          setImageSrc(dataUrl);
         } else {
-            setImageSrc(song.imageSrc); // fallback
+          songImageCache[song.id] = song.imageSrc; // cache fallback
+          setImageSrc(song.imageSrc); // fallback
         }
+        setLoading(false);
       },
       onError: (error) => {
+        if (isCancelled) return;
         console.error('Error reading MP3 tags:', error);
+        songImageCache[song.id] = song.imageSrc; // cache fallback on error
         setImageSrc(song.imageSrc); // fallback on error
+        setLoading(false);
       },
     });
-  }, [song.audioSrc, song.imageSrc, song.id]);
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [song.id, song.audioSrc, song.imageSrc]);
+
+  if (loading || !imageSrc) {
+    return <Skeleton className={cn("aspect-square", className)} style={{width, height}} />;
+  }
 
   return (
     <Image
