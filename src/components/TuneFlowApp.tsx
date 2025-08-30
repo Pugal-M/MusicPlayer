@@ -4,20 +4,30 @@ import { PlayerProvider } from '@/context/PlayerContext';
 import AppSidebar from '@/components/AppSidebar';
 import SongList from '@/components/SongList';
 import AudioPlayer from '@/components/AudioPlayer';
-import { ScrollArea } from './ui/scroll-area';
+import { SidebarProvider, Sidebar, SidebarInset, SidebarTrigger } from './ui/sidebar';
 
 export default function TuneFlowApp() {
   return (
     <PlayerProvider>
-      <div className="grid h-screen w-full grid-cols-[280px_1fr] grid-rows-[1fr_auto] bg-background text-foreground">
-        <AppSidebar />
-        <div className="col-start-2 row-start-1 flex flex-col overflow-hidden">
-            <SongList />
+      <SidebarProvider>
+        <Sidebar>
+          <AppSidebar />
+        </Sidebar>
+        <div className="flex h-screen w-full flex-col bg-background text-foreground">
+          <header className="flex h-14 items-center gap-4 border-b bg-card/50 px-4 md:hidden">
+            <SidebarTrigger />
+            <h1 className="font-headline text-lg font-bold tracking-tight">RhythmicTunes</h1>
+          </header>
+          <div className="flex flex-1 flex-col overflow-hidden">
+            <div className="flex-1 overflow-auto">
+              <SongList />
+            </div>
+            <div className="shrink-0">
+              <AudioPlayer />
+            </div>
+          </div>
         </div>
-        <div className="col-span-2 col-start-1 row-start-2">
-          <AudioPlayer />
-        </div>
-      </div>
+      </SidebarProvider>
     </PlayerProvider>
   );
 }
