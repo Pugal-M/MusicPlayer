@@ -1,3 +1,9 @@
+import TuneFlowApp from '@/components/TuneFlowApp';
+
 export default function Home() {
-  return <></>;
+  return (
+    <main>
+      <TuneFlowApp />
+    </main>
+  );
 }
