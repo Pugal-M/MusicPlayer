@@ -26,7 +26,7 @@ export default function AppSidebar() {
     <aside className="col-start-1 row-span-1 flex flex-col gap-8 border-r bg-card/50 p-4">
       <div className="flex items-center gap-2 px-2">
         <Music2 className="h-8 w-8 text-primary" />
-        <h1 className="font-headline text-2xl font-bold tracking-tight">TuneFlow</h1>
+        <h1 className="font-headline text-2xl font-bold tracking-tight">RhythmicTunes</h1>
       </div>
       <nav className="flex flex-1 flex-col gap-4">
         <div className="flex flex-col gap-1">

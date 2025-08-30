@@ -13,40 +13,93 @@ export type Song = {
 };
 
 export const songs: Song[] = [
-    {
+  {
     id: '1',
-    title: 'Inspiring Cinematic Ambient',
-    artist: 'Lexin Music',
-    album: 'Single',
-    duration: 188,
-    audioSrc: '/music/Inspiring-Cinematic-Ambient.mp3',
+    title: 'Aalaporan Thamizhan',
+    artist: 'A.R. Rahman',
+    album: 'Mersal',
+    duration: 188, // update if you want exact duration
+    audioSrc: '/music/Aalaporan-Thamizhan-MassTamilan.com.mp3',
     imageSrc: 'https://picsum.photos/seed/1/200/200',
-    genre: 'Ambient',
+    genre: 'Tamil',
+    tempo: 'Fast',
+    characteristics: 'Patriotic, Energetic'
+  },  
+  {
+    id: '6',
+    title: 'Nenjukkule',
+    artist: 'A.R. Rahman',
+    album: 'Kadal',
+    duration: 290, // replace with actual duration when available
+    audioSrc: '/music/Nenjukkule.mp3',  
+    imageSrc: 'https://picsum.photos/seed/6/200/200',
+    genre: 'Tamil',
     tempo: 'Slow',
-    characteristics: 'Inspiring, Cinematic'
-  },
+    characteristics: 'Romantic, Emotional'
+  },  
   {
     id: '2',
-    title: 'The Podcast Intro',
-    artist: 'Music Unlimited',
-    album: 'Podcast Pack',
-    duration: 60,
-    audioSrc: '/music/The-Podcast-Intro.mp3',
+    title: 'Hayyoda',
+    artist: 'A.R. Rahman',
+    album: 'Jawan',
+    duration: 200,
+    audioSrc: '/music/Hayyoda-MassTamilan.dev.mp3',
     imageSrc: 'https://picsum.photos/seed/2/200/200',
-    genre: 'Podcast',
+    genre: 'Tamil',
     tempo: 'Medium',
-    characteristics: 'Upbeat, Modern'
+    characteristics: 'Romantic, Melodic'
   },
+
   {
     id: '3',
-    title: 'Modern Vlog',
-    artist: 'Asepirawan',
-    album: 'Vlog Beats',
-    duration: 120,
-    audioSrc: '/music/Modern-Vlog.mp3',
+    title: 'Powerhouse',
+    artist: 'Anirudh ',
+    album: 'Coolie',
+    duration: 206,
+    audioSrc: '/music/Powerhouse.mp3',
     imageSrc: 'https://picsum.photos/seed/3/200/200',
-    genre: 'Electronic',
-    tempo: 'Medium',
-    characteristics: 'Catchy, Energetic'
+    genre: 'Instrumental',
+    tempo: 'Fast',
+    characteristics: 'Energetic, Rhythmic'
   }
+  ,
+  {
+    id: '4',
+    title: 'Muththa Mazhai',
+    artist: 'ARR',
+    album: 'Thug Life',
+    duration: 241,
+    audioSrc: '/music/Muththa Mazhai.mp3',
+    imageSrc: 'https://picsum.photos/seed/4/200/200',
+    genre: 'Tamil',
+    tempo: 'Slow',
+    characteristics: 'Melodic, Emotional'
+  },
+
+  {
+    id: '5',
+    title: 'Arabic Kuthu - Halamithi Habibo',
+    artist: 'Anirudh Ravichander',
+    album: 'Beast',
+    duration: 0, // replace with actual duration when available
+    audioSrc: '/music/Arabic-Kuthu---Halamithi-Habibo-MassTamilan.so.mp3',
+    imageSrc: 'https://picsum.photos/seed/5/200/200',
+    genre: 'Tamil',
+    tempo: 'Fast',
+    characteristics: 'Dance, Energetic'
+  },
+  
+  {
+    id: '7',
+    title: 'Tum Tum',
+    artist: 'Thaman S',
+    album: 'Enemy',
+    duration: 228, // replace with actual duration when available
+    audioSrc: '/music/Tum-Tum-MassTamilan.fm.mp3',
+    imageSrc: 'https://picsum.photos/seed/7/200/200',
+    genre: 'Tamil',
+    tempo: 'Medium',
+    characteristics: 'Romantic, Catchy'
+  }  
+  
 ];

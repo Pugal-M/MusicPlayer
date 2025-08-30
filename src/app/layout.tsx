@@ -3,8 +3,8 @@ import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 
 export const metadata: Metadata = {
-  title: 'TuneFlow',
-  description: 'A seamless platform for music enthusiasts.',
+  title: 'RhythmicTunes',
+  description: 'Your Melodic Companion',
 };
 
 export default function RootLayout({
