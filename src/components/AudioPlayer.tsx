@@ -102,7 +102,7 @@ export default function AudioPlayer() {
               value={[volume]}
               max={1}
               step={0.01}
-              onValueValueChange={handleVolumeChange}
+              onValueChange={handleVolumeChange}
             />
           </div>
         </div>
